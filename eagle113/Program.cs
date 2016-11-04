@@ -28,7 +28,12 @@ namespace Eagle113
             motorD.Off();
             motorA.ResetTacho();
             motorD.ResetTacho();
-            LcdConsole.WriteLine("***Motor_OK!***");
+            //Vehicle_Rady
+            Vehicle vehicle = new Vehicle(MotorPort.OutA, MotorPort.OutD);
+            WaitHandle waitHandle;
+            vehicle.ReverseLeft = false;
+            vehicle.ReverseRight = false;
+            int b = 0;
 
             //Sensor_Rady
             LcdConsole.WriteLine("***Sensor_Rady***");
@@ -41,8 +46,9 @@ namespace Eagle113
             EventWaitHandle stopped = new ManualResetEvent(false);
             ColorMode[] modes = { ColorMode.Color, ColorMode.Reflection, ColorMode.Ambient, ColorMode.Blue };
             int modeIdx = 0;
-            var sensor = new EV3ColorSensor(SensorPort.In2);
+            var sensor = new EV3ColorSensor(SensorPort.In2, ColorMode.Reflection);
 
+            
             //Conection
             LcdConsole.WriteLine("***Conect_Rady***");
             //Http
@@ -66,6 +72,7 @@ namespace Eagle113
             req.ContentType = "application/x-www-form-urlencoded";
             req.ContentLength = data.Length;
             LcdConsole.WriteLine("***Conected!***");
+            
 
             //timer set
             System.Timers.Timer aTimer;
@@ -106,7 +113,8 @@ namespace Eagle113
                 stopped.Set();
                 //loop_run on the line
                 while (true)
-                {                    
+                {
+                    /*         
                     //touchsensor2 Pressed
                     if (touchSensor2.IsPressed() == true)
                     {
@@ -142,7 +150,7 @@ namespace Eagle113
                                 sr.Close();
                                 resStream.Close();
                                 LcdConsole.WriteLine(html);
-                                */
+                                
                                 break;
                             }
                             if (touchSensor1.IsPressed() == true)
@@ -159,7 +167,7 @@ namespace Eagle113
                                 sr.Close();
                                 resStream.Close();
                                 LcdConsole.WriteLine(html);
-                                */
+                                
                                 break;
                             }
 
@@ -197,7 +205,7 @@ namespace Eagle113
                                 string html = sr.ReadToEnd();
                                 sr.Close();
                                 resStream.Close();
-                                LcdConsole.WriteLine(html);*/
+                                LcdConsole.WriteLine(html);
                                 break;
                             }
                             if (touchSensor2.IsPressed() == true)
@@ -206,7 +214,7 @@ namespace Eagle113
                                 Stream reqStream = req.GetRequestStream();
                                 reqStream.Write(data, 0, data.Length);
                                 reqStream.Close();
-                                /* 
+                                /*
                                 WebResponse res = req.GetResponse();
                                 Stream resStream = res.GetResponseStream();
                                 StreamReader sr = new StreamReader(resStream, enc);
@@ -214,13 +222,13 @@ namespace Eagle113
                                 sr.Close();
                                 resStream.Close();
                                 LcdConsole.WriteLine(html);
-                                */
+                                
                                 break;
                             }
                         }
                     }
                     //Ultrasonic on
-                    if (UltraSonicSensor.Read() >= 30)
+                    if (UltraSonicSensor.Read() <= 30)
                     {
                         motorA.Brake();
                         motorD.Brake();
@@ -253,78 +261,81 @@ namespace Eagle113
                                 sr.Close();
                                 resStream.Close();
                                 LcdConsole.WriteLine(html);
-                                */
+                                
                                 break;
                             }
                         }
+                    }*/
+
+                    b = sensor.Read();
+
+
+
+                    if (b <= 20)
+                    {
+                        waitHandle = vehicle.TurnLeftForword(10, 90);
+
                     }
-                    Linetrace();
-                }//whileFin
 
-            };
-        }
+                    if (b > 40)
+                    {
+                        waitHandle = vehicle.Forward(10, 0, true);
+                    }
 
-        //Linetrace
-        public static void Linetrace()
-        {
-            //Vehicle_Rady
-            Vehicle vehicle = new Vehicle(MotorPort.OutA, MotorPort.OutD);
-            WaitHandle waitHandle;
-            vehicle.ReverseLeft = false;
-            vehicle.ReverseRight = false;
-            var sensor = new EV3ColorSensor(SensorPort.In2);
-            ButtonEvents buts = new ButtonEvents();
-
-
-            while (true)
-            {
-                int b = sensor.Read();
-                if (b > 55)
-                {
-                    waitHandle = vehicle.SpinRight(10, 45, true);
-                    Linetrace();
-                }
-                if (b > 45)
-                {
-                    waitHandle = vehicle.SpinRight(10, 15, true);
-                    Linetrace();
-                }
-                if (b > 37)
-                {
-                    waitHandle = vehicle.Forward(10, 0, true);
-                    Linetrace();
-                }
-                if (b > 30)
-                {
-                    waitHandle = vehicle.SpinLeft(10, 15, true);
-                    Linetrace();
-                }
-                if (b > 24)
-                {
-                    waitHandle = vehicle.SpinLeft(10, 50, true);
-                    Linetrace();
-                }
-                if (b > 16)
-                {
-                    waitHandle = vehicle.SpinLeft(10, 75, true);
-                    Linetrace();
-                }
-                if (b > 0)
-                {
-                    waitHandle = vehicle.SpinLeft(10, 85, true);
-                    Linetrace();
-                }
-                if (b <= 0)
-                {
+                    if (b > 60)
+                    {
+                        vehicle.TurnRightForward(10, 45);
+                    }
                     /*
-                    Stream reqStream = req.GetRequestStream();
-                    reqStream.Write(data, 0, data.Length);
-                    reqStream.Close();*/
-                    break;
-                }
-                break;
-            }
+                    if (b > 55)
+                    {
+                        vehicle.TurnRightForward(10, 45);
+                        
+                    }
+                    if (b > 45)
+                    {
+                        vehicle.TurnRightForward(10, 15);
+                        
+                    }
 
+                    if (b > 37)
+                    {
+                        waitHandle = vehicle.Forward(10, 0, true);
+                        
+                    }
+                    if (b > 30)
+                    {
+                        vehicle.TurnLeftForward(10, 15);
+                        
+                    }
+                    if (b > 24)
+                    {
+                        vehicle.TurnLeftForward(10, 50);
+                        
+                    }
+                    if (b > 16)
+                    {
+                        vehicle.TurnLeftForward(10, 75);
+                        
+                    }
+                    if (b > 0)
+                    {
+                        waitHandle = vehicle.SpinLeft(10, 85, true);
+                        
+                    }
+                    if (b <= 0)
+                    {
+                        Stream reqStream = req.GetRequestStream();
+                        reqStream.Write(data, 0, data.Length);
+                        reqStream.Close();
+                        break;
+                    }*/
+                }
+            };
+            terminateProgram.WaitOne();
+            buts.LeftPressed += () => {
+                terminateProgram.Set();
+            };
         }
             
     }
