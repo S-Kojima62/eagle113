@@ -1,28 +1,21 @@
 ﻿using System;
-//using MonoBrickFirmware.Display.Dialogs;
 using MonoBrickFirmware.Display;
 using MonoBrickFirmware.Movement;
 using MonoBrickFirmware.UserInput;
 using MonoBrickFirmware.Sensors;
-//using MonoBrickFirmware.Sound;
-//using MonoBrickFirmware.Native;
 using System.Threading;
 using System.Net;
-//using System.Net.Mail;
-//using System.Security.Cryptography.X509Certificates;
-//using System.Net.Security;
-//using System.Net.Http;
 using System.Web;
 using System.Collections;
 using System.Text;
 using System.IO;
-//using System.Net.WebSockets;
-
 
 namespace Eagle113
 {
     class MainClass
     {
+        private static readonly object terminateProgram;
+
         public static void Main(string[] args)
         {
             //AutoFin->false
@@ -35,11 +28,6 @@ namespace Eagle113
             motorD.Off();
             motorA.ResetTacho();
             motorD.ResetTacho();
-            //Vehicle_Rady
-            Vehicle vehicle = new Vehicle(MotorPort.OutA, MotorPort.OutD);
-            WaitHandle waitHandle;
-            vehicle.ReverseLeft = false;
-            vehicle.ReverseRight = false;
             LcdConsole.WriteLine("***Motor_OK!***");
 
             //Sensor_Rady
@@ -106,213 +94,238 @@ namespace Eagle113
                 sensor.Mode = modes[modeIdx];
                 LcdConsole.WriteLine("Sensor mode is set to: " + modes[modeIdx]);
             };
+            //Left_Finish
+            buts.LeftPressed += () => {
+                terminateProgram.Set();
+            };
 
             //Escape_StartRun
             buts.EscapePressed += () =>
-                {
-                    LcdConsole.WriteLine("***StartRun***");
-                    stopped.Set();
-                    //loop_run on the line
-                    while (true)
+            {
+                LcdConsole.WriteLine("***StartRun***");
+                stopped.Set();
+                //loop_run on the line
+                while (true)
+                {                    
+                    //touchsensor2 Pressed
+                    if (touchSensor2.IsPressed() == true)
                     {
-                        //touchsensor2 Pressed
-                        if (touchSensor2.IsPressed() == true)
+                        //motors stop
+                        motorA.Brake();
+                        motorD.Brake();
+                        LcdConsole.WriteLine("***Stop***");
+
+                        //timer start
+                        aTimer.Start();
+                        int a = 0;
+                        //after 5sec
+                        Thread.Sleep(5000);
+                        a = int.Parse(aTimer.ToString());
+                        if (a >= 5000)
                         {
-                            //motors stop
-                            motorA.Brake();
-                            motorD.Brake();
-                            LcdConsole.WriteLine("***Stop***");
+                            //timer stop
+                            a = 0;
+                            aTimer.Stop();
+                            aTimer.Close();
 
-                            //timer start
-                            aTimer.Start();
-                            int a = 0;
-                            //after 5sec
-                            Thread.Sleep(5000);
-                            a = int.Parse(aTimer.ToString());
-                            if (a >= 5000)
-                            {
-                                //timer stop
-                                a = 0;
-                                aTimer.Stop();
-                                aTimer.Close();
-
-                                if (touchSensor2.IsPressed() == true)
-                                {
-                                    //
-                                    Stream reqStream = req.GetRequestStream();
-                                    reqStream.Write(data, 0, data.Length);
-                                    reqStream.Close();
-                                    /* 
-                                    WebResponse res = req.GetResponse();
-                                    Stream resStream = res.GetResponseStream();
-                                    StreamReader sr = new StreamReader(resStream, enc);
-                                    string html = sr.ReadToEnd();
-                                    sr.Close();
-                                    resStream.Close();
-                                    LcdConsole.WriteLine(html);
-                                    */
-                                    break;
-                                }
-                                if (touchSensor1.IsPressed() == true)
-                                {
-                                    //
-                                    Stream reqStream = req.GetRequestStream();
-                                    reqStream.Write(data, 0, data.Length);
-                                    reqStream.Close();
-                                    /* 
-                                    WebResponse res = req.GetResponse();
-                                    Stream resStream = res.GetResponseStream();
-                                    StreamReader sr = new StreamReader(resStream, enc);
-                                    string html = sr.ReadToEnd();
-                                    sr.Close();
-                                    resStream.Close();
-                                    LcdConsole.WriteLine(html);
-                                    */
-                                    break;
-                                }
-
-                            }
-                        }
-                        //touchsensor1 pressed
-                        if (touchSensor1.IsPressed() == true)
-                        {
-                            motorA.Brake();
-                            motorD.Brake();
-                            LcdConsole.WriteLine("***Stop***");
-                            //timer start
-                            int a = 0;
-                            aTimer.Start();
-                            //after 5sec
-                            Thread.Sleep(5000);
-                            a = int.Parse(aTimer.ToString());
-                            if (a >= 5000)
-                            {
-                                //timer stop
-                                a = 0;
-                                aTimer.Stop();
-                                aTimer.Close();
-
-                                if (touchSensor1.IsPressed() == true)
-                                {
-                                    // 
-                                    Stream reqStream = req.GetRequestStream();
-                                    reqStream.Write(data, 0, data.Length);
-                                    reqStream.Close();
-                                    /* 
-                                    WebResponse res = req.GetResponse();
-                                    Stream resStream = res.GetResponseStream();
-                                    StreamReader sr = new StreamReader(resStream, enc);
-                                    string html = sr.ReadToEnd();
-                                    sr.Close();
-                                    resStream.Close();
-                                    LcdConsole.WriteLine(html);*/
-                                    break;
-                                }
-                                if (touchSensor2.IsPressed() == true)
-                                {
-                                    // 
-                                    Stream reqStream = req.GetRequestStream();
-                                    reqStream.Write(data, 0, data.Length);
-                                    reqStream.Close();
-                                    /* 
-                                    WebResponse res = req.GetResponse();
-                                    Stream resStream = res.GetResponseStream();
-                                    StreamReader sr = new StreamReader(resStream, enc);
-                                    string html = sr.ReadToEnd();
-                                    sr.Close();
-                                    resStream.Close();
-                                    LcdConsole.WriteLine(html);
-                                    */
-                                    break;
-                                }
-                            }
-                        }
-                        //Ultrasonic on
-                        if (UltraSonicSensor.Read() >= 30)
-                        {
-                            motorA.Brake();
-                            motorD.Brake();
-                            LcdConsole.WriteLine("***Stop***");
-                            //timer start
-                            int a = 0;
-                            aTimer.Start();
-                            //after 5sec
-                            Thread.Sleep(5000);
-                            a = int.Parse(aTimer.ToString());
-
-                            if (a >= 5000)
-                            {
-                                //timer stop
-                                a = 0;
-                                aTimer.Stop();
-                                aTimer.Close();
-
-                                if (UltraSonicSensor.Read() >= 30)
-                                {
-                                    // 
-                                    Stream reqStream = req.GetRequestStream();
-                                    reqStream.Write(data, 0, data.Length);
-                                    reqStream.Close();
-                                    /* 
-							        WebResponse res = req.GetResponse();
-							        Stream resStream = res.GetResponseStream();
-							        StreamReader sr = new StreamReader(resStream, enc);
-							        string html = sr.ReadToEnd();
-							        sr.Close();
-							        resStream.Close();
-							        LcdConsole.WriteLine(html);
-							        */
-                                    break;
-                                }
-                            }
-                        }
-
-                        //on Line
-                        while (true)
-                        {
-                            int b = Convert.ToInt32(sensor.ReadAsString());
-                            if (b > 55)
-                            {
-                                waitHandle = vehicle.SpinRight(10, 45, true);
-                            }
-
-                            if (b > 45)
-                            {
-                                waitHandle = vehicle.SpinRight(10, 15, true);
-                            }
-                            if (b > 37)
-                            {
-                                waitHandle = vehicle.Forward(10, 0, true);
-                            }
-                            if (b > 30)
-                            {
-                                waitHandle = vehicle.SpinLeft(10, 15, true);
-                            }
-                            if (b > 24)
-                            {
-                                waitHandle = vehicle.SpinLeft(10, 50, true);
-                            }
-                            if (b > 16)
-                            {
-                                waitHandle = vehicle.SpinLeft(10, 75, true);
-                            }
-                            if (b > 0)
-                            {
-                                waitHandle = vehicle.SpinLeft(10, 85, true);
-                            }
-                            if (b <= 0)
+                            if (touchSensor2.IsPressed() == true)
                             {
                                 //
                                 Stream reqStream = req.GetRequestStream();
                                 reqStream.Write(data, 0, data.Length);
                                 reqStream.Close();
+                                /* 
+                                WebResponse res = req.GetResponse();
+                                Stream resStream = res.GetResponseStream();
+                                StreamReader sr = new StreamReader(resStream, enc);
+                                string html = sr.ReadToEnd();
+                                sr.Close();
+                                resStream.Close();
+                                LcdConsole.WriteLine(html);
+                                */
                                 break;
                             }
-                            break;
-                        }//Line end
-                    }//whileFin
-                    terminateProgram.WaitOne();
+                            if (touchSensor1.IsPressed() == true)
+                            {
+                                //
+                                Stream reqStream = req.GetRequestStream();
+                                reqStream.Write(data, 0, data.Length);
+                                reqStream.Close();
+                                /* 
+                                WebResponse res = req.GetResponse();
+                                Stream resStream = res.GetResponseStream();
+                                StreamReader sr = new StreamReader(resStream, enc);
+                                string html = sr.ReadToEnd();
+                                sr.Close();
+                                resStream.Close();
+                                LcdConsole.WriteLine(html);
+                                */
+                                break;
+                            }
+
+                        }
+                    }
+                    //touchsensor1 pressed
+                    if (touchSensor1.IsPressed() == true)
+                    {
+                        motorA.Brake();
+                        motorD.Brake();
+                        LcdConsole.WriteLine("***Stop***");
+                        //timer start
+                        int a = 0;
+                        aTimer.Start();
+                        //after 5sec
+                        Thread.Sleep(5000);
+                        a = int.Parse(aTimer.ToString());
+                        if (a >= 5000)
+                        {
+                            //timer stop
+                            a = 0;
+                            aTimer.Stop();
+                            aTimer.Close();
+
+                            if (touchSensor1.IsPressed() == true)
+                            {
+                                // 
+                                Stream reqStream = req.GetRequestStream();
+                                reqStream.Write(data, 0, data.Length);
+                                reqStream.Close();
+                                /* 
+                                WebResponse res = req.GetResponse();
+                                Stream resStream = res.GetResponseStream();
+                                StreamReader sr = new StreamReader(resStream, enc);
+                                string html = sr.ReadToEnd();
+                                sr.Close();
+                                resStream.Close();
+                                LcdConsole.WriteLine(html);*/
+                                break;
+                            }
+                            if (touchSensor2.IsPressed() == true)
+                            {
+                                // 
+                                Stream reqStream = req.GetRequestStream();
+                                reqStream.Write(data, 0, data.Length);
+                                reqStream.Close();
+                                /* 
+                                WebResponse res = req.GetResponse();
+                                Stream resStream = res.GetResponseStream();
+                                StreamReader sr = new StreamReader(resStream, enc);
+                                string html = sr.ReadToEnd();
+                                sr.Close();
+                                resStream.Close();
+                                LcdConsole.WriteLine(html);
+                                */
+                                break;
+                            }
+                        }
+                    }
+                    //Ultrasonic on
+                    if (UltraSonicSensor.Read() >= 30)
+                    {
+                        motorA.Brake();
+                        motorD.Brake();
+                        LcdConsole.WriteLine("***Stop***");
+                        //timer start
+                        int a = 0;
+                        aTimer.Start();
+                        //after 5sec
+                        Thread.Sleep(5000);
+                        a = int.Parse(aTimer.ToString());
+
+                        if (a >= 5000)
+                        {
+                            //timer stop
+                            a = 0;
+                            aTimer.Stop();
+                            aTimer.Close();
+
+                            if (UltraSonicSensor.Read() >= 30)
+                            {
+                                // 
+                                Stream reqStream = req.GetRequestStream();
+                                reqStream.Write(data, 0, data.Length);
+                                reqStream.Close();
+                                /* 
+                                WebResponse res = req.GetResponse();
+                                Stream resStream = res.GetResponseStream();
+                                StreamReader sr = new StreamReader(resStream, enc);
+                                string html = sr.ReadToEnd();
+                                sr.Close();
+                                resStream.Close();
+                                LcdConsole.WriteLine(html);
+                                */
+                                break;
+                            }
+                        }
+                    }
+                    Linetrace();
+                }//whileFin
+
             };
         }
+
+        //Linetrace
+        public static void Linetrace()
+        {
+            //Vehicle_Rady
+            Vehicle vehicle = new Vehicle(MotorPort.OutA, MotorPort.OutD);
+            WaitHandle waitHandle;
+            vehicle.ReverseLeft = false;
+            vehicle.ReverseRight = false;
+            var sensor = new EV3ColorSensor(SensorPort.In2);
+            ButtonEvents buts = new ButtonEvents();
+
+
+            while (true)
+            {
+                int b = sensor.Read();
+                if (b > 55)
+                {
+                    waitHandle = vehicle.SpinRight(10, 45, true);
+                    Linetrace();
+                }
+                if (b > 45)
+                {
+                    waitHandle = vehicle.SpinRight(10, 15, true);
+                    Linetrace();
+                }
+                if (b > 37)
+                {
+                    waitHandle = vehicle.Forward(10, 0, true);
+                    Linetrace();
+                }
+                if (b > 30)
+                {
+                    waitHandle = vehicle.SpinLeft(10, 15, true);
+                    Linetrace();
+                }
+                if (b > 24)
+                {
+                    waitHandle = vehicle.SpinLeft(10, 50, true);
+                    Linetrace();
+                }
+                if (b > 16)
+                {
+                    waitHandle = vehicle.SpinLeft(10, 75, true);
+                    Linetrace();
+                }
+                if (b > 0)
+                {
+                    waitHandle = vehicle.SpinLeft(10, 85, true);
+                    Linetrace();
+                }
+                if (b <= 0)
+                {
+                    /*
+                    Stream reqStream = req.GetRequestStream();
+                    reqStream.Write(data, 0, data.Length);
+                    reqStream.Close();*/
+                    break;
+                }
+                break;
+            }
+
+        }
+            
     }
 }
