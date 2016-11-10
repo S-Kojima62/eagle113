@@ -114,7 +114,7 @@ namespace Eagle113
                 //loop_run on the line
                 while (true)
                 {
-                    /*         
+                           
                     //touchsensor2 Pressed
                     if (touchSensor2.IsPressed() == true)
                     {
@@ -122,6 +122,8 @@ namespace Eagle113
                         motorA.Brake();
                         motorD.Brake();
                         LcdConsole.WriteLine("***Stop***");
+
+                        Environment.Exit(0);
 
                         //timer start
                         aTimer.Start();
@@ -142,14 +144,6 @@ namespace Eagle113
                                 Stream reqStream = req.GetRequestStream();
                                 reqStream.Write(data, 0, data.Length);
                                 reqStream.Close();
-                                /* 
-                                WebResponse res = req.GetResponse();
-                                Stream resStream = res.GetResponseStream();
-                                StreamReader sr = new StreamReader(resStream, enc);
-                                string html = sr.ReadToEnd();
-                                sr.Close();
-                                resStream.Close();
-                                LcdConsole.WriteLine(html);
                                 
                                 break;
                             }
@@ -159,20 +153,13 @@ namespace Eagle113
                                 Stream reqStream = req.GetRequestStream();
                                 reqStream.Write(data, 0, data.Length);
                                 reqStream.Close();
-                                /* 
-                                WebResponse res = req.GetResponse();
-                                Stream resStream = res.GetResponseStream();
-                                StreamReader sr = new StreamReader(resStream, enc);
-                                string html = sr.ReadToEnd();
-                                sr.Close();
-                                resStream.Close();
-                                LcdConsole.WriteLine(html);
                                 
                                 break;
                             }
 
                         }
                     }
+                    
                     //touchsensor1 pressed
                     if (touchSensor1.IsPressed() == true)
                     {
@@ -198,14 +185,6 @@ namespace Eagle113
                                 Stream reqStream = req.GetRequestStream();
                                 reqStream.Write(data, 0, data.Length);
                                 reqStream.Close();
-                                /* 
-                                WebResponse res = req.GetResponse();
-                                Stream resStream = res.GetResponseStream();
-                                StreamReader sr = new StreamReader(resStream, enc);
-                                string html = sr.ReadToEnd();
-                                sr.Close();
-                                resStream.Close();
-                                LcdConsole.WriteLine(html);
                                 break;
                             }
                             if (touchSensor2.IsPressed() == true)
@@ -214,15 +193,6 @@ namespace Eagle113
                                 Stream reqStream = req.GetRequestStream();
                                 reqStream.Write(data, 0, data.Length);
                                 reqStream.Close();
-                                /*
-                                WebResponse res = req.GetResponse();
-                                Stream resStream = res.GetResponseStream();
-                                StreamReader sr = new StreamReader(resStream, enc);
-                                string html = sr.ReadToEnd();
-                                sr.Close();
-                                resStream.Close();
-                                LcdConsole.WriteLine(html);
-                                
                                 break;
                             }
                         }
@@ -253,39 +223,30 @@ namespace Eagle113
                                 Stream reqStream = req.GetRequestStream();
                                 reqStream.Write(data, 0, data.Length);
                                 reqStream.Close();
-                                /* 
-                                WebResponse res = req.GetResponse();
-                                Stream resStream = res.GetResponseStream();
-                                StreamReader sr = new StreamReader(resStream, enc);
-                                string html = sr.ReadToEnd();
-                                sr.Close();
-                                resStream.Close();
-                                LcdConsole.WriteLine(html);
-                                
                                 break;
                             }
                         }
-                    }*/
+                    }
+
 
                     b = sensor.Read();
 
-
-
-                    if (b <= 20)
+                    if (b < 15)
                     {
-                        waitHandle = vehicle.TurnLeftForword(10, 90);
-
+                        vehicle.TurnRightForward(10, 100);
+                                            }
+                    if (15 <= b && b < 60)
+                    {
+                        vehicle.TurnLeftForward(10, 60);
                     }
 
-                    if (b > 40)
+                    if (b >= 60)
                     {
                         waitHandle = vehicle.Forward(10, 0, true);
                     }
 
-                    if (b > 60)
-                    {
-                        vehicle.TurnRightForward(10, 45);
-                    }
+
+
                     /*
                     if (b > 55)
                     {
