@@ -72,11 +72,11 @@ namespace Eagle113
             req.ContentType = "application/x-www-form-urlencoded";
             req.ContentLength = data.Length;
             LcdConsole.WriteLine("***Conected!***");
-            
+
 
             //timer set
-            System.Timers.Timer aTimer;
-            aTimer = new System.Timers.Timer(1000);
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            long a = 0;
 
             //buts
             ButtonEvents buts = new ButtonEvents();
@@ -121,30 +121,33 @@ namespace Eagle113
                         //motors stop
                         motorA.Brake();
                         motorD.Brake();
-                        LcdConsole.WriteLine("***Stop***");
-
-                        Environment.Exit(0);
 
                         //timer start
-                        aTimer.Start();
-                        int a = 0;
+                        sw.Start();
+
                         //after 5sec
                         Thread.Sleep(5000);
-                        a = int.Parse(aTimer.ToString());
+                        a = sw.ElapsedMilliseconds;
+                        LcdConsole.WriteLine("***Stop***");
+
                         if (a >= 5000)
                         {
                             //timer stop
                             a = 0;
-                            aTimer.Stop();
-                            aTimer.Close();
+                            sw.Stop();
+                            sw.Reset();
+                            LcdConsole.WriteLine("***Stop***");
 
                             if (touchSensor2.IsPressed() == true)
                             {
+                                LcdConsole.WriteLine("***Stop***");
                                 //
                                 Stream reqStream = req.GetRequestStream();
                                 reqStream.Write(data, 0, data.Length);
                                 reqStream.Close();
-                                
+
+                                LcdConsole.WriteLine("***Stop***");
+
                                 break;
                             }
                             if (touchSensor1.IsPressed() == true)
@@ -153,11 +156,12 @@ namespace Eagle113
                                 Stream reqStream = req.GetRequestStream();
                                 reqStream.Write(data, 0, data.Length);
                                 reqStream.Close();
-                                
+
                                 break;
                             }
 
                         }
+                        else continue;
                     }
                     
                     //touchsensor1 pressed
@@ -167,17 +171,18 @@ namespace Eagle113
                         motorD.Brake();
                         LcdConsole.WriteLine("***Stop***");
                         //timer start
-                        int a = 0;
-                        aTimer.Start();
+                        sw.Start();
+
                         //after 5sec
                         Thread.Sleep(5000);
-                        a = int.Parse(aTimer.ToString());
+
+                        a = sw.ElapsedMilliseconds;
                         if (a >= 5000)
                         {
                             //timer stop
                             a = 0;
-                            aTimer.Stop();
-                            aTimer.Close();
+                            sw.Stop();
+                            sw.Reset();
 
                             if (touchSensor1.IsPressed() == true)
                             {
@@ -185,6 +190,7 @@ namespace Eagle113
                                 Stream reqStream = req.GetRequestStream();
                                 reqStream.Write(data, 0, data.Length);
                                 reqStream.Close();
+
                                 break;
                             }
                             if (touchSensor2.IsPressed() == true)
@@ -193,9 +199,11 @@ namespace Eagle113
                                 Stream reqStream = req.GetRequestStream();
                                 reqStream.Write(data, 0, data.Length);
                                 reqStream.Close();
+
                                 break;
                             }
                         }
+                        else continue;
                     }
                     //Ultrasonic on
                     if (UltraSonicSensor.Read() <= 30)
@@ -204,30 +212,32 @@ namespace Eagle113
                         motorD.Brake();
                         LcdConsole.WriteLine("***Stop***");
                         //timer start
-                        int a = 0;
-                        aTimer.Start();
+                        sw.Start();
+
                         //after 5sec
                         Thread.Sleep(5000);
-                        a = int.Parse(aTimer.ToString());
+
+                        a = sw.ElapsedMilliseconds;
 
                         if (a >= 5000)
                         {
                             //timer stop
                             a = 0;
-                            aTimer.Stop();
-                            aTimer.Close();
+                            sw.Stop();
+                            sw.Reset();
 
-                            if (UltraSonicSensor.Read() >= 30)
+                            if (UltraSonicSensor.Read() <= 30)
                             {
                                 // 
                                 Stream reqStream = req.GetRequestStream();
                                 reqStream.Write(data, 0, data.Length);
                                 reqStream.Close();
+                                                               
                                 break;
                             }
                         }
+                        else continue;
                     }
-
 
                     b = sensor.Read();
 
@@ -245,52 +255,6 @@ namespace Eagle113
                         waitHandle = vehicle.Forward(10, 0, true);
                     }
 
-
-
-                    /*
-                    if (b > 55)
-                    {
-                        vehicle.TurnRightForward(10, 45);
-                        
-                    }
-                    if (b > 45)
-                    {
-                        vehicle.TurnRightForward(10, 15);
-                        
-                    }
-
-                    if (b > 37)
-                    {
-                        waitHandle = vehicle.Forward(10, 0, true);
-                        
-                    }
-                    if (b > 30)
-                    {
-                        vehicle.TurnLeftForward(10, 15);
-                        
-                    }
-                    if (b > 24)
-                    {
-                        vehicle.TurnLeftForward(10, 50);
-                        
-                    }
-                    if (b > 16)
-                    {
-                        vehicle.TurnLeftForward(10, 75);
-                        
-                    }
-                    if (b > 0)
-                    {
-                        waitHandle = vehicle.SpinLeft(10, 85, true);
-                        
-                    }
-                    if (b <= 0)
-                    {
-                        Stream reqStream = req.GetRequestStream();
-                        reqStream.Write(data, 0, data.Length);
-                        reqStream.Close();
-                        break;
-                    }*/
                 }
             };
             terminateProgram.WaitOne();
