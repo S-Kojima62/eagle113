@@ -73,7 +73,6 @@ namespace Eagle113
             req.ContentLength = data.Length;
             LcdConsole.WriteLine("***Conected!***");
 
-
             //timer set
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             long a = 0;
@@ -122,31 +121,35 @@ namespace Eagle113
                         motorA.Brake();
                         motorD.Brake();
 
+                        LcdConsole.WriteLine("***Stop***");
+
                         //timer start
                         sw.Start();
 
                         //after 5sec
                         Thread.Sleep(5000);
                         a = sw.ElapsedMilliseconds;
-                        LcdConsole.WriteLine("***Stop***");
 
+                        LcdConsole.WriteLine("***Stop_5sec***");
+                        
                         if (a >= 5000)
                         {
                             //timer stop
                             a = 0;
                             sw.Stop();
                             sw.Reset();
-                            LcdConsole.WriteLine("***Stop***");
-
+                            
                             if (touchSensor2.IsPressed() == true)
                             {
-                                LcdConsole.WriteLine("***Stop***");
+                                LcdConsole.WriteLine("***Stop_ISPressed2***");
+
                                 //
                                 Stream reqStream = req.GetRequestStream();
+                                LcdConsole.WriteLine("***Stop_GetReqStream***");
                                 reqStream.Write(data, 0, data.Length);
+                                LcdConsole.WriteLine("***Stop_write***");
                                 reqStream.Close();
-
-                                LcdConsole.WriteLine("***Stop***");
+                                LcdConsole.WriteLine("***Stop_reqStream.close***");
 
                                 break;
                             }
